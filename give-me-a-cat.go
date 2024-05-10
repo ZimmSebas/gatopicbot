@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"github.com/joho/godotenv"
 )
 
 type Response []struct {
@@ -22,20 +23,25 @@ func main() {
 
 	client := &http.Client{}
 
+	err := godotenv.Load()
+	if err != nil {
+        log.Fatalf("Error loading .env file: %v", err)
+	}
+
 	request, err := http.NewRequest("GET","https://api.thecatapi.com/v1/images/search?format=json&limit=1", nil)	
 
 	if err != nil {
-		fmt.Print(err.Error())
-		os.Exit(1)
+        log.Fatalf("Error creating the request %v", err)
 	}
 
+	CAT_API_TOKEN := os.Getenv("CAT_API_TOKEN")
+
 	// TO-DO: Set Cat API TOKEN
-	request.Header.Set("x-api-key", "TOKEN")
+	request.Header.Set("x-api-key", CAT_API_TOKEN)
 
 	response, err := client.Do(request)
 	if err != nil {
-		fmt.Print(err.Error())
-		os.Exit(1)	
+        log.Fatalf("Request failed with error %v", err)
 	}
 
 	responseData, err := ioutil.ReadAll(response.Body)
